@@ -1,3 +1,4 @@
+# パーセプトロンの分類機クラス作成
 import numpy as np
 
 
