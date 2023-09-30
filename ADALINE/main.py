@@ -1,5 +1,14 @@
 # ADALINEの実装
 class AdalineGD(object):
+    """
+    自分が考えるADALINEの流れ
+    ①与えられたデータに対して、現在の重みでラベルの値を出してみる
+    ②活性化関数を適用ADALINEの場合、特に何もしない(恒等式らしい...)
+    ③真ラベルとの誤差を出す(Δと定義)
+    ④重みの更新：特徴量の個数分、特徴量x11,x12,x13...と誤差(errors = [e1,e2,e3....])の内積,特徴量x21,x22,z23....と誤差(errors = [e1,e2,e3....])との内積を求める
+    ⑤バイアスの重みの更新：バイアスの特徴量は1なのでΔの和
+    """
+
     """ADAptive LInear NEuron分類機
 
     パラメータ
@@ -43,24 +52,34 @@ class AdalineGD(object):
         self.cost_ = []
 
         for i in range(self.n_iter):  # 訓練回数分まで訓練データを反復
-            net_input = self.net_input[X]
-            # activationメソッドは異なる恒等関数であるため
-            # このコードではなんの意味もないことに注意
+            # net_inputの例[3.5, 3.0, 4.5, 6.0]データ4つの場合
+            net_input = self.net_input(X)
+            # activationメソッドは単なる恒等関数であるため
+            # このコードではなんの効果もないことに注意
             # 直接`output = self.net_input(X)と記述することもできた
             # activationメソッドの目的は、より概念的なものである。
             # つまり、(後ほど説明する)ロジスティック回帰の場合は、
             # ロジスティック回帰の分類機を実装するためにジグモイド関数に変更することもできる
+            # activationは活性化関数
             output = self.activation(net_input)
-            # 誤差 y - φ(z(i))の計算
+            # ADALINEにおいてφz(i)は総入力
+            # それぞれの真ラベルと、それぞれの計算された総入力との誤差 式はy - φ(z(i))
+            # 例 errors = y - output = [-1.5, 0, -0.5, -1.0] データが4つの場合
             errors = y - output
             # w1,w2,w3...wmの更新
             # Δwj = ηΣi(y(i) - φ(z(i)))xj
+            # X.T.dot(errors)の計算例
+            """
+            Xの特徴量が二個の場合
+            X.T.dot(errors) = [[1, 2, 3, 4], [2, 3, 5, 7]].dot([-1.5, 0, -0.5, -1.0])
+                = [-6.5, -11.5]
+            """
             self.w_[1:] += self.eta * X.T.dot(errors)
             self.w_[0] += self.eta * errors.sum()
             # コスト関数の計算j(w) = 1/2Σ(y(i) - φ(zi)**2
             cost = (errors**2).sum() / 2.0
             # コストの格納
-            self.cost_append(cost)
+            self.cost_.append(cost)
         return self
 
     def net_input(self, X):
