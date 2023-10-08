@@ -1,57 +1,77 @@
-# 決定領域のプロット
-# iris-dataの決定境界を可視化するための関数
-from matplotlib.colors import ListedColormap
-import matplotlib.pyplot as plt
+# use Gradient Descent
+# Implement Logigistic Regression
+class LogisticRegressionGD(object):
+    """勾配降下法に基づくロジスティック回帰分類機
 
+    パラメータ
+    -------------
+    eta : float
+      学習率(0.0より大きく1.0以下の値)
+    n_iter : int
+      訓練データの訓練回数
+    rando_state : int
+      重みを初期化するための乱数シード
 
-def plot_decision_regions(X, y, classifier, test_idx=None, resolution=0.02):
-    # マーカーとカラーマップの準備
-    markers = ["s", "x", "o", "^", "v"]
-    colors = ["red", "blue", "lightgreen", "gray", "cyan"]
-    cmap = ListedColormap(colors[: len(np.unique(y))])
+    属性
+    ------------
+    w_ : 1次元配列
+    　適合後の重み
+    cost_ : リスト
+      各エポックでのロジスティックコスト関数
+    """
 
-    # 決定領域のプロット
-    x1_min, x1_max = X[:, 0].min() - 1, X[:, 0].max() + 1
-    x2_min, x2_max = X[:, 1].min() - 1, X[:, 1].max() + 1
-    # グリッドポイントの生成　1次元配列を受け取って2次元の全ての座標点取得
-    xx1, xx2 = np.meshgrid(
-        np.arange(x1_min, x1_max, resolution), np.arange(x2_min, x2_max, resolution)
-    )
-    # 各特徴量(xx1,xx2)を1次元配列に変換して予測を実行
-    Z = classifier.predict(np.array([xx1.ravel(), xx2.ravel()]).T)
+    def __init__(self, eta=0.05, n_iter=100, random_state=1):
+        # 学習率の初期化、訓練回数の初期化、乱数シードを固定にするrandom_state
+        self.eta = eta
+        self.n_iter = n_iter
+        self.random_state = random_state
 
-    # 予測結果を元のグリッドポイントのデータサイズに変換ここでは1次元を二次元に変換
-    Z = Z.reshape(xx1.shape)
-    # グリッドポイントの等高線のプロット’
+    def fit(self, X, y):
+        """訓練データに適合させる
 
-    plt.contourf(xx1, xx2, Z, alpha=0.3, cmap=cmap)
-    # 軸の範囲の設定
-    plt.xlim(xx1.min(), xx1.max())
-    plt.ylim(xx2.min(), xx2.max())
+        パラメータ
+        -----------
+        X : {配列のような構造}, shape = [n_examples, n_features]
+          訓練データ
+        y : 配列のようなデータ構造, shape = [n_examples]
+          目的変数
 
-    # クラスごとに訓練データをプロット
-    for idx, cl in enumerate(np.unique(y)):
-        plt.scatter(
-            x=X[y == cl, 0],
-            y=X[y == cl, 1],
-            alpha=0.8,
-            c=colors[idx],
-            marker=markers[idx],
-            label=cl,
-            edgecolor="black",
-        )
+        戻り値
+        --------
+        self : object
+        """
 
-    # テストデータ点を目立たせる（点を◯で表示）
-    if test_idx:
-        # すべてのデータ点をプロット
-        X_test, y_test = X[test_idx, :], y[test_idx]
-        plt.scatter(
-            X_test[:, 0],
-            X_test[:, 1],
-            edgecolor="black",
-            alpha=1.0,
-            linewidth=1,
-            marker="o",
-            s=100,
-            label="test set",
-        )
+        rgen = np.random.RandomState(self.random_state)
+        # 特徴量の数分重みを乱数から生成
+        # sizeのところで生成する乱数の数を指定、1+はバイアス項
+        self.w_ = rgen.normal(loc=0.0, scale=0.01, size=1 + X.shape[1])
+        # コスト関数の経過を確認
+        self.cost_ = []
+
+        # 訓練の回数分まで訓練データを反復処理
+        for i in range(self.n_iter):
+            net_input = self.net_input(X)
+            output = self.activation(net_input)
+            errors = y - output
+            self.w_[1:] += self.eta * X.T.dot(errors)
+            self.w_[0] += self.eta * errors.sum()
+            # 誤差平方和のコスト関数ではなくロジスティック回帰のコストを計算することに注意
+            # ここもADALINEと異なる点
+            cost = -y.dot(np.log(output)) - ((1 - y).dot(np.log(1 - output)))
+            # エポックごとのコストを格納
+            self.cost_.append(cost)
+        return self
+
+    def net_input(self, X):
+        """総入力を計算"""
+        return np.dot(X, self.w_[1:]) + self.w_[0]
+
+    def activation(self, z):
+        """ロジスティックシグモイド活性化関数を計算"""
+        return 1.0 / (1.0 + np.exp(-np.clip(z, -250, 250)))
+
+    def predict(self, X):
+        """1ステップ後のクラスラベルを返す"""
+        return np.where(self.net_input(X) >= 0.0, 1, 0)
+        # 以下に等しい
+        # return np.where(self.activation(self.net_input(X)) >= 0.5, 1,0)
