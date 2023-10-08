@@ -1,46 +1,57 @@
-# Implement Logistic Regression
-class LogisticRegressionGD(object):
-    """勾配降下法に基づくロジスティック回帰分類機
+# 決定領域のプロット
+# iris-dataの決定境界を可視化するための関数
+from matplotlib.colors import ListedColormap
+import matplotlib.pyplot as plt
 
-    パラメータ
-    -------------
-    eta : float
-      学習率(0.0より大きく1.0以下の値)
-    n_iter : int
-      訓練データの訓練回数
-    rando_state : int
-      重みを初期化するための乱数シード
 
-    属性
-    ------------
-    w_ : 1次元配列
-    　適合後の重み
-    cost_ : リスト
-      各エポックでのロジスティックコスト関数
-    """
+def plot_decision_regions(X, y, classifier, test_idx=None, resolution=0.02):
+    # マーカーとカラーマップの準備
+    markers = ["s", "x", "o", "^", "v"]
+    colors = ["red", "blue", "lightgreen", "gray", "cyan"]
+    cmap = ListedColormap(colors[: len(np.unique(y))])
 
-    def __init__(self, eta=0.05, n_iter=100, random_state=1):
-        # 学習率の初期化、訓練回数の初期化、乱数シードを固定にするrandom_state
-        self.eta = eta
-        self.n_iter = n_iter
-        self.random_state = random_state
+    # 決定領域のプロット
+    x1_min, x1_max = X[:, 0].min() - 1, X[:, 0].max() + 1
+    x2_min, x2_max = X[:, 1].min() - 1, X[:, 1].max() + 1
+    # グリッドポイントの生成　1次元配列を受け取って2次元の全ての座標点取得
+    xx1, xx2 = np.meshgrid(
+        np.arange(x1_min, x1_max, resolution), np.arange(x2_min, x2_max, resolution)
+    )
+    # 各特徴量(xx1,xx2)を1次元配列に変換して予測を実行
+    Z = classifier.predict(np.array([xx1.ravel(), xx2.ravel()]).T)
 
-    def fit(self, X, y):
-        """訓練データに適合させる
+    # 予測結果を元のグリッドポイントのデータサイズに変換ここでは1次元を二次元に変換
+    Z = Z.reshape(xx1.shape)
+    # グリッドポイントの等高線のプロット’
 
-        パラメータ
-        -----------
-        X : {配列のような構造}, shape = [n_examples, n_features]
-          訓練データ
-        y : 配列のようなデータ構造, shape = [n_examples]
-          目的変数
+    plt.contourf(xx1, xx2, Z, alpha=0.3, cmap=cmap)
+    # 軸の範囲の設定
+    plt.xlim(xx1.min(), xx1.max())
+    plt.ylim(xx2.min(), xx2.max())
 
-        戻り値
-        --------
-        self : object
-        """
+    # クラスごとに訓練データをプロット
+    for idx, cl in enumerate(np.unique(y)):
+        plt.scatter(
+            x=X[y == cl, 0],
+            y=X[y == cl, 1],
+            alpha=0.8,
+            c=colors[idx],
+            marker=markers[idx],
+            label=cl,
+            edgecolor="black",
+        )
 
-        rgen = np.random.RandomState(self.random_state)
-        # 特徴量の数分重みを乱数から生成
-        # sizeのところで生成する乱数の数を指定、1+はバイアス項
-        self.w_ = rgen.normal(loc=0.0, scale=0.01, size=1 + X.shape[1])
+    # テストデータ点を目立たせる（点を◯で表示）
+    if test_idx:
+        # すべてのデータ点をプロット
+        X_test, y_test = X[test_idx, :], y[test_idx]
+        plt.scatter(
+            X_test[:, 0],
+            X_test[:, 1],
+            edgecolor="black",
+            alpha=1.0,
+            linewidth=1,
+            marker="o",
+            s=100,
+            label="test set",
+        )
