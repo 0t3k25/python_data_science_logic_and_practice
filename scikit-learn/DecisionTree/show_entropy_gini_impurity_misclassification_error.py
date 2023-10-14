@@ -1,3 +1,6 @@
+# データに所属しているデータの割合をx軸
+# 不純度をy軸とする
+# ジニ不純度、エントロピー、分類誤差の不純度の値の変化を確認
 import matplotlib.pyplot as plt
 import numpy as np
 
