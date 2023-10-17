@@ -19,3 +19,5 @@ print(df["size"])
 print(df)
 inv_size_mapping = {v: k for k, v in size_mapping.items()}
 print(inv_size_mapping)
+print(df["size"])
+df["size"].map(inv_size_mapping)
