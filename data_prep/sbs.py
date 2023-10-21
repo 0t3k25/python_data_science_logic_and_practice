@@ -54,7 +54,7 @@ class SBS:
                 subsets.append(p)
             # scoreにはdim-1した特徴量で学習させた際のスコアが入っている
             # 最良のスコアのインデックスを抽出
-            best = np.argmax(score)
+            best = np.argmax(scores)
             # 最良のスコアとなる列インデックスを抽出して格納
             self.indices_ = subsets[best]
             self.subsets_.append(self.indices_)
