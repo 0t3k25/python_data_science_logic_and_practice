@@ -54,3 +54,17 @@ plt.xlabel("principal component index")
 plt.legend(loc="best")
 plt.tight_layout()
 plt.show()
+
+# （固有値、固有ベクトル）のタプルのリストを作成
+eigen_pairs = [
+    (np.abs(eigen_vals[i]), eigen_vecs[:, i]) for i in range(len(eigen_vals))
+]
+
+# （固有値、固有ベクトル）のタプルを大きいものから順に並べ替え
+eigen_pairs.sort(key=lambda k: k[0], reverse=True)
+print(eigen_pairs)
+w = np.hstack((eigen_pairs[0][1][:, np.newaxis], eigen_pairs[1][1][:, np.newaxis]))
+print("Matrix W:\n", w)
+X_train_std[0].dot(w)
+X_train_pca = X_train_std.dot(w)
+print(X_train_pca)
