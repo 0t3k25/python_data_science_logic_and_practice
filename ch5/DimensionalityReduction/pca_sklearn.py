@@ -25,3 +25,8 @@ plt.ylabel("PC2")
 plt.legend(loc="lower left")
 plt.tight_layout()
 plt.show()
+# 分散説明率の値にアクセス
+pca = PCA(n_components=None)
+X_train_pca = pca.fit_transform(X_train_std)
+# 分散説明率を計算
+pca.explained_variance_ratio_
