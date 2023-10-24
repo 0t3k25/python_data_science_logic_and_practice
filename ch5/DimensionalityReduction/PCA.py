@@ -68,3 +68,21 @@ print("Matrix W:\n", w)
 X_train_std[0].dot(w)
 X_train_pca = X_train_std.dot(w)
 print(X_train_pca)
+
+# 点の分布がどのようになっているか描画
+colors = ["r", "b", "g"]
+markers = ["s", "x", "o"]
+# 「クラスラベル」「点の色」「点の種類」の組み合わせからなるリストを生成してプロット
+for l, c, m in zip(np.unique(y_train), colors, markers):
+    plt.scatter(
+        X_train_pca[y_train == l, 0],
+        X_train_pca[y_train == l, 1],
+        c=c,
+        label=1,
+        marker=m,
+    )
+plt.xlabel("PC1")
+plt.ylabel("PC2")
+plt.legend(loc="lower left")
+plt.tight_layout()
+plt.show()
