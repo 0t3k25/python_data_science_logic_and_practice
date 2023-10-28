@@ -27,3 +27,8 @@ plt.ylim([-0.1, 1.1])
 plt.legend(loc="best")
 plt.tight_layout()
 plt.show()
+# 2つの固有ベクトルから変換行列を作成
+w = np.hstack(
+    (eigen_paris[0][1][:, np.newaxis].real, eigen_paris[1][1][:, np.newaxis].real)
+)
+print("MatrixW: \n", w)
