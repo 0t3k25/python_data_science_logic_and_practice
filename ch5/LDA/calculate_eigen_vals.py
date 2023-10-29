@@ -12,7 +12,7 @@ for eigen_val in eigen_pairs:
 tot = sum(eigen_vals.real)
 # 分散説明率とその累積和を計算
 discr = [(i / tot) for i in sorted(eigen_vals.real, reverse=True)]
-cum_discur = np.cumsum(discr)
+cum_discr = np.cumsum(discr)
 plt.bar(
     range(1, 14),
     discr,
@@ -20,15 +20,15 @@ plt.bar(
     align="center",
     label='Individual "discriminability"',
 )
-plt.step(range(1, 14), cum_discr, where="mid", label='cumulative "discriminability"')
+plt.step(range(1, 14), cum_discr, where="mid", label='Cumulative "discriminability"')
 plt.ylabel('"Discriminability" ratio')
-plt.xlabel("Linear Discriminants")
+plt.xlabel("Linear discriminants")
 plt.ylim([-0.1, 1.1])
 plt.legend(loc="best")
 plt.tight_layout()
 plt.show()
 # 2つの固有ベクトルから変換行列を作成
 w = np.hstack(
-    (eigen_paris[0][1][:, np.newaxis].real, eigen_paris[1][1][:, np.newaxis].real)
+    (eigen_pairs[0][1][:, np.newaxis].real, eigen_pairs[1][1][:, np.newaxis].real)
 )
-print("MatrixW: \n", w)
+print("Matrix W:\n", w)
