@@ -27,4 +27,42 @@ import numpy as np
 cov_mat = np.cov(X_train_std.T)
 # ③computing eigenvalues and eigenvectors
 eigen_vals, eigen_vecs = np.linalg.eig(cov_mat)
-print(f"Eigen_vals \n {eigen_vecs}")
+# print(f'Eigen_vals \n {eigen_vecs}')
+# compute and plot variance explained ratio
+# 固有値を合計
+tot = sum(eigen_vals)
+# 分散説明率を合計
+var_exp = [(i / tot) for i in sorted(eigen_vals, reverse=True)]
+# 分散説明率の累積和を取得
+cum_var_exp = np.cumsum(var_exp)
+import matplotlib.pyplot as plt
+
+plt.bar(
+    range(1, 14),
+    var_exp,
+    alpha=0.5,
+    align="center",
+    label="Individual explained variance",
+)
+# 分散説明率の累積和の段階グラフを作成
+plt.step(
+    range(1, 14),
+    cum_var_exp,
+    alpha=0.5,
+    where="mid",
+    label="Cumulative explained variance",
+)
+plt.ylabel("Explained variance ratio")
+plt.xlabel("Principal component index")
+plt.legend(loc="best")
+plt.tight_layout()
+plt.show()
+# (固有値・固有ベクトル)のタプルのリストを作成
+eigen_pairs = [
+    (np.abs(eigen_vals[i]), eigen_vecs[:, i]) for i in range(len(eigen_vals))
+]
+# (固有値・固有ベクトル)のタプルを大きいものから順に並べ替え
+eigen_pairs.sort(key=lambda k: k[0], reverse=True)
+# 射影行列w作成
+w = np.hstack((eigen_pairs[0][1][:, np.newaxis], eigen_pairs[1][1][:, np.newaxis]))
+print(f"Matrix \n  {w}")
