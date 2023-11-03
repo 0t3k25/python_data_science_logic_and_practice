@@ -12,7 +12,7 @@ def plot_decision_regions(X, y, classifier, resolution=0.02):
     x2_min, x2_max = X[:, 1].min() - 1, X[:, 1].max() + 1
     # グリッドpointの生成
     xx1, xx2 = np.meshgrid(
-        np.arange(x1_min, x1_max, resolution), np.arange(x2_min, x2_max)
+        np.arange(x1_min, x1_max, resolution), np.arange(x2_min, x2_max, resolution)
     )
     # 各特徴量を1次元配列に変換して予測を実行
     Z = classifier.predict(np.array([xx1.ravel(), xx2.ravel()]).T)
