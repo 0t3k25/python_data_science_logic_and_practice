@@ -24,3 +24,7 @@ plt.ylabel("PC2")
 plt.legend(loc="lower left")
 plt.tight_layout()
 plt.show()
+# それぞれの分散率に関して表示
+pca = PCA(n_components=None)
+X_train_pca = pca.fit_transform(X_train_std)
+pca.explained_variance_ratio_
