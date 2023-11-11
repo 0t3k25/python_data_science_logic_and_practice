@@ -43,7 +43,7 @@ def rbf_kernel_pca(X, gamma, n_components):
     eigvals, eigvecs = eigvals[::-1], eigvecs[:, ::-1]
 
     # 上位k個の固有ベクトル(射影されたデータ点)を取得
-    alphas = np.column_stack((eigvecs[:, i] for i in range(n_components)))
+    alphas = np.column_stack([eigvecs[:, i] for i in range(n_components)])
 
     # 対応する固有値を収集
     lambdas = [eigvals[i] for i in range(n_components)]
