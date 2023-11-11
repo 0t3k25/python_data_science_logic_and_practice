@@ -17,8 +17,11 @@ def rbf_kernel_pca(X, gamma, n_components):
 
     戻り値
     ---------
-    X_pc: {NumPy ndarray}, shape = [n_examples, k_features]
+    alphas: {NumPy ndarray}, shape = [n_examples, k_features]
       射影されたデータセット
+
+    lambdas: list
+      固有値
     """
 
     # M × N次元のデータセットでペアごとのユークリッド距離の2乗を計算
@@ -40,5 +43,9 @@ def rbf_kernel_pca(X, gamma, n_components):
     eigvals, eigvecs = eigvals[::-1], eigvecs[:, ::-1]
 
     # 上位k個の固有ベクトル(射影されたデータ点)を取得
-    X_pc = np.column_stack((eigvecs[:, i] for i in range(n_components)))
-    return X_pc
+    alphas = np.column_stack((eigvecs[:, i] for i in range(n_components)))
+
+    # 対応する固有値を収集
+    lambdas = [eigvals[i] for i in range(n_components)]
+
+    return alphas, lambdas
