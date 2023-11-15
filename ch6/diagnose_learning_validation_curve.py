@@ -26,3 +26,5 @@ plt.plot(
     markersize=5,
     lavel="Training acccuracy",
 )
+# fill_between関数で平均±標準偏差の幅を塗りつぶす
+plt.fill_between(train_sizes, train_mean + train_std)
