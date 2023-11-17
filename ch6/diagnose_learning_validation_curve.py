@@ -3,7 +3,7 @@ from sklearn.model_selection import learning_curve
 
 pipe_lr = make_pipeline(
     StandardScaler(),
-    LogisticRegression(penalty="12", random_state=1, solver="lbfgs", max_iter=100),
+    LogisticRegression(penalty="l2", random_state=1, solver="lbfgs", max_iter=10000),
 )
 # learning_curve関数で交差検証による正解率を算出
 train_sizes, train_scores, test_scores = learning_curve(
