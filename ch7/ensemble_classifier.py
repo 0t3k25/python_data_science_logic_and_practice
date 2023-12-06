@@ -103,32 +103,32 @@ class MajorityVoteClassifier(BaseEstimator, ClassifierMixin):
             maj_vote = self.lablenc_.inverse_transform(maj_vote)
             return maj_vote
 
-        def predict_proba(self, X):
-            """Xのクラスの確率を予測する
+    def predict_proba(self, X):
+        """Xのクラスの確率を予測する
 
-            パラメータ
-            ------------
-            X:{array-like, sparse matrix}, shape = [n_examples,n_features]
-              訓練ベクトル:n_examplesはデータ点の個数、n_featuresは特徴量の個数
+        パラメータ
+        ------------
+        X:{array-like, sparse matrix}, shape = [n_examples,n_features]
+          訓練ベクトル:n_examplesはデータ点の個数、n_featuresは特徴量の個数
 
-            戻り値
-            ----------
-            avg_proba: array-like, shape = [n_examples, n_classes]
-              各データ点に対する各クラスで重みづけた平均確率
-            """
-            probas = np.asarray([clf.predict_proba(X) for clf in self.classifiers_])
-            avg_proba = np.average(probas, axis=0, weights=self.weights)
-            return avg_proba
+        戻り値
+        ----------
+        avg_proba: array-like, shape = [n_examples, n_classes]
+          各データ点に対する各クラスで重みづけた平均確率
+        """
+        probas = np.asarray([clf.predict_proba(X) for clf in self.classifiers_])
+        avg_proba = np.average(probas, axis=0, weights=self.weights)
+        return avg_proba
 
-        def get_params(self, deep=True):
-            """GridSearchの実行時に分類器のパラメータ名を取得"""
-            if not deep:
-                return super(MajorityVoteClassifier, self).get_params(deep=False)
-            else:
-                # キーを"分類器の名前__パラメータ名"、
-                # 値をパラメータの値とするディクショナリを生成
-                out = self.named_classifiers.copy()
-                for name, step in self.named_classifiers.items():
-                    for key, value in step.get_params(deep=True).items():
-                        out["%s__%s" % (name, key)] = value
-                return out
+    def get_params(self, deep=True):
+        """GridSearchの実行時に分類器のパラメータ名を取得"""
+        if not deep:
+            return super(MajorityVoteClassifier, self).get_params(deep=False)
+        else:
+            # キーを"分類器の名前__パラメータ名"、
+            # 値をパラメータの値とするディクショナリを生成
+            out = self.named_classifiers.copy()
+            for name, step in self.named_classifiers.items():
+                for key, value in step.get_params(deep=True).items():
+                    out["%s__%s" % (name, key)] = value
+            return out
