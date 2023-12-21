@@ -30,3 +30,15 @@ def preprocessor(text):
     emoticons = re.findall("(?::|;|=)(?:-)?(?:\)|\(D|P)", text)
     text = re.sub("[\W]+", " ", text.lower()) + "".join(emoticons).replace("-", "")
     return text
+
+
+# クレンジング適応
+df["review"] = df["review"].apply(preprocessor)
+
+
+# テキストをトークン化
+def tokenizer(text):
+    return text.split()
+
+
+tokenizer("runners like running and thus they run")
