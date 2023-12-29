@@ -34,3 +34,13 @@ def get_minibatch(doc_stream, size):
     except StopIteration:
         return None, None
     return docs, y
+
+
+from sklearn.feature_extraction.text import HashingVectorizer
+from sklearn.linear_model import SGDClassifier
+
+vect = HashingVectorizer(
+    decode_error="ignore", n_features=2**21, preprocessor=None, tokenizer=tokenizer
+)
+clf = SGDClassifier(loss="log", random_state=1)
+doc_stream = stream_docs(path="/content/movie_data.csv")
