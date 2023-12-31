@@ -56,3 +56,9 @@ for _ in range(45):
     X_train = vect.transform(X_train)
     clf.partial_fit(X_train, y_train, classes=classes)
     pbar.update()
+
+X_test, y_test = get_minibatch(doc_stream, size=5000)
+X_test = vect.transform(X_test)
+print(f"Accuracy {clf.score(X_test,y_test): .3f}")
+# モデルの更新
+clf = clf.partial_fit(X_test, y_test)
