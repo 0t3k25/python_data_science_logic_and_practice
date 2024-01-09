@@ -105,3 +105,57 @@ plt.show()
 num_rooms_std = sc_x.transform(np.array([[5.0]]))
 price_std = lr.predict(num_rooms_std)
 print(f"Price in $1000s: {sc_y.inverse_transform([price_std])}")
+
+from sklearn.linear_model import LinearRegression
+
+slr = LinearRegression()
+slr.fit(X, y)
+y_pred = slr.predict(X)
+print(f"Slope: {slr.coef_[0]: .3f}")
+print(f"Intercept: {slr.intercept_: .3f}")
+
+lin_regplot(X, y, slr)
+plt.xlabel("Average number of room[RM]")
+plt.ylabel("Prive in $1000s[MEDV]")
+plt.show()
+
+from sklearn.linear_model import RANSACRegressor
+
+# RANSACモデルをインスタンス化
+ransac = RANSACRegressor(
+    LinearRegression(),
+    max_trials=100,
+    min_samples=50,
+    loss="absolute_error",
+    residual_threshold=5.0,
+    random_state=0,
+)
+ransac.fit(X, y)
+
+inlier_mask = ransac.inlier_mask_  # 正常値を表す真偽値を取得
+outlier_mask = np.logical_not(inlier_mask)  # 外れ値を表す真偽値を取得
+line_X = np.arange(3, 10, 1)  # 3から9までの整数値を作成
+line_y_ransac = ransac.predict(line_X[:, np.newaxis])
+# 正常値をプロット
+plt.scatter(
+    X[inlier_mask],
+    y[inlier_mask],
+    c="steelblue",
+    edgecolors="white",
+    marker="o",
+    label="Inliers",
+)
+# 外れ値をプロット
+plt.scatter(
+    X[outlier_mask],
+    y[outlier_mask],
+    c="limegreen",
+    edgecolors="white",
+    marker="s",
+    label="Outliers",
+)
+plt.plot(line_X, line_y_ransac, color="black", lw=2)
+plt.xlabel("Average number of room[RM]")
+plt.ylabel("Price in $1000s [MEDV]")
+plt.legend(loc="upper left")
+plt.show()
