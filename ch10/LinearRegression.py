@@ -223,3 +223,24 @@ lasso = Lasso(alpha=1.0)
 from sklearn.linear_model import ElasticNet
 
 elanet = ElasticNet(alpha=1.0, l1_ratio=0.5)
+
+
+from sklearn.preprocessing import PolynomialFeatures
+
+X = np.array([258.0, 270.0, 294.0, 320.0, 342.0, 368.0, 396.0, 446.0, 480.0, 586.0])[
+    :, np.newaxis
+]
+y = np.array([236.4, 234.4, 252.8, 298.6, 314.2, 342.2, 360.8, 360.8, 391.2, 390.8])
+# 線形回帰（最小二乗）モデルのクラスをインスタンス化
+lr = LinearRegression()
+pr = LinearRegression()
+# 2次の多項式特徴量のクラスをインスタンス化
+quadratic = PolynomialFeatures(degree=2)
+X_quad = quadratic.fit_transform(X)
+
+# 単回帰モデルを学習
+lr.fit(X, y)
+# np.newaxisで列ベクトルにする
+X_fit = np.arange(250, 600, 10)[:, np.newaxis]
+# 予測値を計算
+y_lin_fit = lr.predict(X_fit)
