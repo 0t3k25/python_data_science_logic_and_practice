@@ -244,3 +244,103 @@ lr.fit(X, y)
 X_fit = np.arange(250, 600, 10)[:, np.newaxis]
 # 予測値を計算
 y_lin_fit = lr.predict(X_fit)
+# 重回帰モデルを学習させる
+pr.fit(X_quad, y)
+# 2次式でyの値を計算
+y_quad_fit = pr.predict(quadratic.fit_transform(X_fit))
+
+# 散布図、線形回帰モデル、多項式回帰モデルの結果をプロット
+plt.scatter(X, y, label="Trainig points")
+plt.plot(X_fit, y_lin_fit, label="Linear fit", linestyle="--")
+plt.plot(X_fit, y_quad_fit, label="Quadratic fit")
+plt.xlabel("Explanatory variable")
+plt.ylabel("Predicted or known target values")
+plt.legend(loc="upper left")
+plt.tight_layout()
+plt.show()
+# calculate MSE and R^2
+y_lin_pred = lr.predict(X)
+y_quad_pred = pr.predict(X_quad)
+print(
+    f"Training MSE linear: {mean_squared_error(y,y_lin_pred): .3f}, quadratic: {mean_squared_error(y,y_quad_pred): .3f}"
+)
+print(
+    f"Training R^2 linear: {r2_score(y,y_lin_pred): .3f}, quadratic: {r2_score(y,y_quad_pred): .3f}"
+)
+
+X = df[["LSTAT"]].values
+y = df[["MEDV"]].values
+regr = LinearRegression()
+
+# 2次(quad)3次(cubic)の特徴量を作成
+quadratic = PolynomialFeatures(degree=2)
+cubic = PolynomialFeatures(degree=3)
+X_quad = quadratic.fit_transform(X)
+X_cubic = cubic.fit_transform(X)
+
+# 特徴量の学習
+X_fit = np.arange(X.min(), X.max(), 1)[:, np.newaxis]
+regr = regr.fit(X, y)
+y_lin_fit = regr.predict(X_fit)
+linear_r2 = r2_score(y, regr.predict(X))
+
+# 2次の特徴量の学習、予測、決定係数の計算
+regr = regr.fit(X_quad, y)
+y_quad_fit = regr.predict(quadratic.fit_transform(X_fit))
+quadratic_r2 = r2_score(y, regr.predict(X_quad))
+
+# 3次の特徴量の学習、予測、決定係数の計算
+regr = regr.fit(X_cubic, y)
+y_cubic_fit = regr.predict(cubic.fit_transform(X_fit))
+cubic_r2 = r2_score(y, regr.predict(X_cubic))
+
+# 各モデルの結果をプロット
+plt.scatter(X, y, label="Training points", color="lightgray")
+plt.plot(
+    X_fit,
+    y_lin_fit,
+    label="Linear(d=1), $R^2=%2f$" % linear_r2,
+    color="blue",
+    lw=2,
+    linestyle=":",
+)
+plt.plot(
+    X_fit,
+    y_quad_fit,
+    label=f"Quadratic(d=2), $R^2={quadratic_r2: .3f}",
+    color="red",
+    lw=2,
+    linestyle="-",
+)
+plt.plot(
+    X_fit,
+    y_cubic_fit,
+    label=f"Cubic(d=3), $R^2={cubic_r2: .3f}",
+    color="green",
+    lw=2,
+    linestyle="--",
+)
+plt.xlabel("%lower status of the population(LSTAT)")
+plt.ylabel("Price in $10000s[MEDV]")
+plt.legend(loc="upper right")
+plt.show()
+
+# 特徴量を変換
+X_log = np.log(X)
+y_sqrt = np.sqrt(y)
+# 特徴量の学習、予測、決定係数の計算
+X_fit = np.arange(X_log.min() - 1, X_log.max() + 1, 1)[:, np.newaxis]
+regr = regr.fit(X_log, y_sqrt)
+y_lin_fit = regr.predict(X_fit)
+linear_r2 = r2_score(y_sqrt, regr.predict(X_log))
+
+# 射影したデータを使った学習結果をプロット
+plt.scatter(X_log, y_sqrt, label="Training points", color="lightgray")
+plt.plot(
+    X_fit, y_lin_fit, label=f"Linear(d=1), $R^2={linear_r2: .3f}", color="blue", lw=2
+)
+plt.xlabel("log(% lower status of the ppopulation[LSTAT])")
+plt.ylabel("$\sqrt{Price \; in \; \$1000s[MEDV]}$")
+plt.legend(loc="lower left")
+plt.tight_layout()
+plt.show()
