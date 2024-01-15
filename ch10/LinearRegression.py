@@ -344,3 +344,18 @@ plt.ylabel("$\sqrt{Price \; in \; \$1000s[MEDV]}$")
 plt.legend(loc="lower left")
 plt.tight_layout()
 plt.show()
+
+from sklearn.tree import DecisionTreeRegressor
+
+X = df[["LSTAT"]].values
+y = df["MEDV"].values
+# 決定木回帰モデルのクラスをインスタンス化
+tree = DecisionTreeRegressor(max_depth=3)
+tree.fit(X, y)
+# argsortはソート後のインデックスを返し、flattenは1次元の配列を返す
+sort_idx = X.flatten().argsort()
+# 10.3.1項で定義したlin_regplot関数により、散布図と回帰直線を作成
+lin_regplot(X[sort_idx], y[sort_idx], tree)
+plt.xlabel("% ;ower status of the population [LSTAT]")
+plt.ylabel("Price in $1000s [MEDV]")
+plt.show()
