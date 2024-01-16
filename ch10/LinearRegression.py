@@ -359,3 +359,54 @@ lin_regplot(X[sort_idx], y[sort_idx], tree)
 plt.xlabel("% ;ower status of the population [LSTAT]")
 plt.ylabel("Price in $1000s [MEDV]")
 plt.show()
+
+X = df.iloc[:, :-1].values
+y = df["MEDV"].values
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.4, random_state=1)
+from sklearn.ensemble import RandomForestRegressor
+
+# ランダムフォレスト回帰のクラスをインスタンス化
+forest = RandomForestRegressor(
+    n_estimators=1000, criterion="friedman_mse", random_state=1, n_jobs=-1
+)
+forest.fit(X_train, y_train)
+y_train_pred = forest.predict(X_train)
+y_test_pred = forest.predict(X_test)
+# MSE(平均二乗誤差)を出力
+print(
+    f"MSE train: {mean_squared_error(y_train,y_train_pred)} test: {mean_squared_error(y_test,y_test_pred)}"
+)
+
+# R^2(決定係数)を出力
+print(
+    f"R^2 train: {r2_score(y_train,y_train_pred)} test: {r2_score(y_test,y_test_pred)}"
+)
+
+# 予測値と残差をプロット
+plt.scatter(
+    y_train_pred,
+    y_train_pred - y_train,
+    c="steelblue",
+    edgecolor="white",
+    marker="o",
+    s=35,
+    alpha=0.9,
+    label="Training data",
+)
+plt.scatter(
+    y_test_pred,
+    y_test_pred - y_test,
+    c="limegreen",
+    edgecolor="white",
+    marker="s",
+    s=35,
+    alpha=0.9,
+    label="Test data",
+)
+plt.xlabel("Predicted values")
+plt.ylabel("Residuals")
+plt.legend(loc="upper left")
+plt.hlines(y=0, xmin=-10, xmax=50, lw=2, color="black")
+plt.xlim([-10, 50])
+plt.tight_layout()
+plt.show()
