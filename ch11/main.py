@@ -69,3 +69,24 @@ plt.legend(scatterpoints=1)
 plt.grid()
 plt.tight_layout()
 plt.show()
+
+# elbow method
+print(f"Distortion: {km.inertia_}")
+
+distortions = []
+for i in range(1, 11):
+    km = KMeans(
+        n_clusters=i,
+        init="k-means++",  # k-means++法によりクラスタ中心を選択
+        n_init=10,
+        max_iter=300,
+        random_state=0,
+    )
+    km.fit(X)
+    distortions.append(km.inertia_)
+
+plt.plot(range(1, 11), distortions, marker="o")
+plt.xlabel("Number of clusters")
+plt.ylabel("Distortion")
+plt.tight_layout()
+plt.show()
