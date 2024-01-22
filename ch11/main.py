@@ -118,3 +118,18 @@ for i, c in enumerate(cluster_labels):
         edgecolor="none",
         color=color,
     )
+
+# 悪いクラスタリングの表示
+km = KMeans(
+    n_cluster=2, init="k-means++", n_init=10, max_iter=300, tol=1e-04, random_state=0
+)
+y_km = km.fit_predict(X)
+plt.scatter(
+    X[y_km == 0, 0],
+    X[y_km == 0, 1],
+    s=50,
+    c="lightgreen",
+    edgecolor="black",
+    marker="s",
+    label="Cluster 1",
+)
