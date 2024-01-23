@@ -164,3 +164,18 @@ pd.DataFrame(
     columns=["row label 1", "row label 2", "distance", "no. of items in clust."],
     index=["cluster %d" % (i + 1) for i in range(row_clusters.shape[0])],
 )
+
+from scipy.cluster.hierarchy import dendrogram
+
+# 樹形図を黒で表示する場合
+# from scipy.cluster.hierarchy import set_link_color_palette
+# set_link_color_palette(['black'])
+row_dendr = dendrogram(
+    row_clusters,
+    labels=labels,
+    #  樹形図を黒で表示する場合
+    #  color_threshold=np.inf
+)
+plt.ylabel("Euclidean distance")
+plt.tight_layout()
+plt.show()
