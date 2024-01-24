@@ -179,3 +179,131 @@ row_dendr = dendrogram(
 plt.ylabel("Euclidean distance")
 plt.tight_layout()
 plt.show()
+
+# print heatmap
+fig = plt.figure(figsize=(8, 8), facecolor="white")
+axd = fig.add_axes([0.09, 0.1, 0.2, 0.6])  # x軸の位置,y軸の位置,幅,高さ
+# 注意：matplotlibがv1.5.1以下の場合は、orientation='right'を使うこと
+row_dendr = dendrogram(row_clusters, orientation="left")
+
+df_rowclust = df.iloc[row_dendr["leaves"][::-1]]
+axd.set_xticks([])
+axd.set_yticks([])
+
+# remove axes spines from dendrogram
+for i in axd.spines.values():
+    i.set_visible(False)
+
+# plot heatmap
+axm = fig.add_axes([0.23, 0.1, 0.6, 0.6])  # x-pos, y-pos, width, height
+cax = axm.matshow(df_rowclust, interpolation="nearest", cmap="hot_r")
+fig.colorbar(cax)
+axm.set_xticklabels([""] + list(df_rowclust.columns))
+axm.set_yticklabels([""] + list(df_rowclust.index))
+
+# plt.savefig('images/11_12.png', dpi=300)
+plt.show()
+
+# implement AgglomerativeClustering
+from sklearn.cluster import AgglomerativeClustering
+
+ac = AgglomerativeClustering(
+    n_clusters=3,  # クラスタの個数
+    affinity="euclidean",  # 類似度の指数
+    linkage="complete",  # 連結方法（ここでは完全連結法）
+)
+labels = ac.fit_predict(X)
+print(f"Cluster labels {labels}")
+
+ac = AgglomerativeClustering(n_clusters=2, affinity="euclidean", linkage="complete")
+labels = ac.fit_predict(X)
+print(f"Cluster labels {labels}")
+
+# comapare clustering analysis using half moon data
+from sklearn.datasets import make_moons
+
+X, y = make_moons(
+    n_samples=200, noise=0.05, random_state=0  # 生成する点の個数  # データに追加するガウスノイズの標準偏差
+)
+plt.scatter(X[:, 0], X[:, 1])
+plt.tight_layout()
+plt.show()
+
+# k-means,agglomerative
+f, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 3))
+km = KMeans(n_clusters=2, random_state=0)
+y_km = km.fit_predict(X)
+ax1.scatter(
+    X[y_km == 0, 0],
+    X[y_km == 0, 1],
+    c="lightblue",
+    edgecolor="black",
+    marker="o",
+    s=40,
+    label="cluster 1",
+)
+ax1.scatter(
+    X[y_km == 1, 0],
+    X[y_km == 1, 1],
+    c="red",
+    edgecolor="black",
+    marker="s",
+    s=40,
+    label="cluster 2",
+)
+ax1.set_title("K-means clustering")
+ac = AgglomerativeClustering(n_clusters=2, affinity="euclidean", linkage="complete")
+y_ac = ac.fit_predict(X)
+ax2.scatter(
+    X[y_ac == 0, 0],
+    X[y_ac == 0, 1],
+    c="lightblue",
+    edgecolor="black",
+    marker="o",
+    s=40,
+    label="cluster 1",
+)
+ax2.scatter(
+    X[y_ac == 1, 0],
+    X[y_ac == 1, 1],
+    c="red",
+    edgecolor="black",
+    marker="s",
+    s=40,
+    label="cluster 2",
+)
+ax2.set_title("Agglomerative clustering")
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+# DBSCAN
+from sklearn.cluster import DBSCAN
+
+db = DBSCAN(
+    eps=0.2,  # 隣接点とみなす2点間の最大距離
+    min_samples=5,  # ボーダー点の最小個数
+    metric="euclidean",  # 距離の計算方法
+)
+y_db = db.fit_predict(X)
+plt.scatter(
+    X[y_db == 0, 0],
+    X[y_db == 0, 1],
+    c="lightgreen",
+    edgecolor="black",
+    marker="o",
+    s=40,
+    label="Cluster 1",
+)
+plt.scatter(
+    X[y_db == 1, 0],
+    X[y_db == 1, 1],
+    c="red",
+    edgecolor="black",
+    marker="s",
+    s=40,
+    label="Cluster 2",
+)
+plt.legend()
+plt.tight_layout()
+plt.show()
