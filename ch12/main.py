@@ -32,3 +32,13 @@ print("Rows: %d, columns: %d" % (X_train.shape[0], X_train.shape[1]))
 
 X_test, y_test = load_mnist("/content/drive/My Drive", kind="t10k")
 print("Rows: %d, columns: %d" % (X_test.shape[0], X_test.shape[1]))
+
+# visualize image using matplotlib
+import matplotlib.puplot as plt
+
+# subplotsで描画を設定：引数で描画領域の行数/列数、x/y軸の統一を指定
+fig, ax = plt.subplots(nrows=2, ncols=5, sharex=True, sharey=True)
+ax = ax.flatten()  # 配列を1次元に変形
+for i in range(10):
+    img = X_train[y_train == i][0].reshape(28, 28)  # 配列を28×28に変形
+    ax[i].imshow(img, cmap="Gray")
