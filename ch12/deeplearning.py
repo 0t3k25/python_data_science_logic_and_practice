@@ -106,8 +106,8 @@ class NeuralNetMLP(object):
         L2_term = self.l2 * (np.sum(self.w_h**2.0) + np.sum(self.w_out**2.0))
 
         term1 = -y_enc * (np.log(output))
-        tern2 = (1.0 - y_enc) * np.log(1.0 - output)
-        cost = np.sum(term1=term2) + L2_term
+        term2 = (1.0 - y_enc) * np.log(1.0 - output)
+        cost = np.sum(term1 - term2) + L2_term
 
         #
         return cost
@@ -159,7 +159,7 @@ class NeuralNetMLP(object):
         #####
 
         # 入力層 ->隠れ層の重み
-        self.b_h = np.zeros(n_output)
+        self.b_h = np.zeros(self.n_hidden)
         self.w_h = self.random.normal(
             loc=0.0, scale=0.1, size=(n_features, self.n_hidden)
         )
@@ -171,7 +171,7 @@ class NeuralNetMLP(object):
         )
 
         # 書式設定
-        expoch_strlen = len(str(self.epochs))
+        epoch_strlen = len(str(self.epochs))
         self.eval_ = {"cost": [], "train_acc": [], "valid_acc": []}
 
         y_train_enc = self._onehot(y_train, n_output)
@@ -208,7 +208,7 @@ class NeuralNetMLP(object):
 
                 #  [n_feeatures,n_examples] dot [n_examples, n_classlabels]
                 # ->[n_features,n_hidden]
-                grad_w_h = np.dot(a_h.T, delta_out)
+                grad_w_h = np.dot(X_train[batch_idx].T, delta_h)
                 grad_b_h = np.sum(delta_h, axis=0)
 
                 # [n_hidden, n_examples] dot [n_examples, n_classlabels]
@@ -217,7 +217,12 @@ class NeuralNetMLP(object):
 
                 # 正則化と重みの更新
                 delta_w_h = grad_w_h + self.l2 * self.w_h
-                delta_b_h = grad_b_h  # バイアスは正則化しない
+                delta_b_h = grad_b_h  # bias is not regularized
+                self.w_h -= self.eta * delta_w_h
+                self.b_h -= self.eta * delta_b_h
+
+                delta_w_out = grad_w_out + self.l2 * self.w_out
+                delta_b_out = grad_b_out  # bias is not regularized
                 self.w_out -= self.eta * delta_w_out
                 self.b_out -= self.eta * delta_b_out
 
@@ -227,15 +232,15 @@ class NeuralNetMLP(object):
 
             # イテレーションごとに評価を行う
             z_h, a_h, z_out, a_out = self._forward(X_train)
-            cost = self._compute_cost(y_enc=u_train_enc, output=a_out)
+            cost = self._compute_cost(y_enc=y_train_enc, output=a_out)
             y_train_pred = self.predict(X_train)
             y_valid_pred = self.predict(X_valid)
-            train_acc = (np.sum(y_train == y_train_pred)).astype(
-                np.float
-            ) / X_train.shape[0]
-            valid_acc = (np.sum(y_valid == y_valid_pred)).astype(
-                np.float
-            ) / X_valid.shape[0]
+            train_acc = (np.sum(y_train == y_train_pred)).astype(float) / X_train.shape[
+                0
+            ]
+            valid_acc = (np.sum(y_valid == y_valid_pred)).astype(float) / X_valid.shape[
+                0
+            ]
 
             sys.stderr.write(
                 "\r%0*d/%d | Cost:%.2f"
@@ -255,3 +260,57 @@ class NeuralNetMLP(object):
             self.eval_["train_acc"].append(train_acc)
             self.eval_["valid_acc"].append(valid_acc)
         return self
+
+
+# インスタンス作成
+nn = NeuralNetMLP(
+    n_hidden=100,
+    l2=0.01,
+    epochs=200,
+    eta=0.0005,
+    minibatch_size=100,
+    shuffle=True,
+    seed=1,
+)
+
+# deeplearning訓練
+nn.fit(
+    X_train=X_train[:55000],
+    y_train=y_train[:55000],
+    X_valid=X_train[55000:],
+    y_valid=y_train[55000:],
+)
+
+import matplotlib.pyplot as plt
+
+plt.plot(range(nn.epochs), nn.eval_["cost"])
+plt.ylabel("Cost")
+plt.xlabel("Epochs")
+plt.show()
+
+plt.plot(range(nn.epochs), nn.eval_["train_acc"], label="Training")
+plt.plot(range(nn.epochs), nn.eval_["valid_acc"], label="Validatiion", linestyle="--")
+plt.ylabel("Accuracy")
+plt.xlabel("Epochs")
+plt.legend(loc="lower right")
+plt.show()
+
+# print accuracy
+y_test_pred = nn.predict(X_test)
+acc = np.sum(y_test == y_test_pred).astype(float) / X_test.shape[0]
+print(f"Test accuracy {acc*100: .2f}")
+
+#
+miscl_img = X_test[y_test != y_test_pred][:25]
+correct_lab = y_test[y_test != y_test_pred][:25]
+miscl_lab = y_test_pred[y_test != y_test_pred][:25]
+fig, ax = plt.subplots(nrows=5, ncols=5, sharex=True, sharey=True)
+ax = ax.flatten()
+for i in range(25):
+    img = miscl_img[i].reshape(28, 28)
+    ax[i].imshow(img, cmap="Greys", interpolation="nearest")
+    ax[i].set_title(f"{i+1}) t: {correct_lab[i]} p: {miscl_lab[i]}")
+ax[0].set_xticks([])
+ax[0].set_yticks([])
+plt.tight_layout()
+plt.show()
