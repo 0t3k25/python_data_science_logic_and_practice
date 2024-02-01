@@ -81,3 +81,24 @@ A = tf.ones((3,))
 B = tf.zeros((3,))
 S = tf.stack([A, B], axis=1)
 print(S.numpy())
+
+a = [1.2, 3.4, 7.5, 4.1, 5.0, 1.0]
+ds = tf.data.Dataset.from_tensor_slices(a)
+print(ds)
+
+for item in ds:
+    print(item)
+
+ds_batch = ds.batch(3)
+for i, elem in enumerate(ds_batch, 1):
+    print(f"batch {i}: {elem.numpy()}")
+
+tf.random.set_seed(1)
+t_x = tf.random.uniform([4, 3], dtype=tf.float32)
+t_y = tf.range(4)
+
+ds_x = tf.data.Dataset.from_tensor_slices(t_x)
+ds_y = tf.data.Dataset.from_tensor_slices(t_y)
+ds_joint = tf.data.Dataset.zip((ds_x, ds_y))
+for example in ds_joint:
+    print(f"x: {example[0].numpy()} y:{example[1].numpy()}")
