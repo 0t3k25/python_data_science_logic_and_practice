@@ -102,3 +102,7 @@ ds_y = tf.data.Dataset.from_tensor_slices(t_y)
 ds_joint = tf.data.Dataset.zip((ds_x, ds_y))
 for example in ds_joint:
     print(f"x: {example[0].numpy()} y:{example[1].numpy()}")
+
+ds_trans = ds_joint.map(lambda x, y: (x * 2 - 1.0, y))
+for example in ds_trans:
+    print(f"x: {example[0].numpy()} y: {example[1].numpy()}")
