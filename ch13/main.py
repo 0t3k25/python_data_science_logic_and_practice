@@ -106,3 +106,8 @@ for example in ds_joint:
 ds_trans = ds_joint.map(lambda x, y: (x * 2 - 1.0, y))
 for example in ds_trans:
     print(f"x: {example[0].numpy()} y: {example[1].numpy()}")
+
+ds = ds_joint.batch(batch_size=3, drop_remainder=False)
+batch_x, batch_y = next(iter(ds))
+print(f"Batch-x:\n{batch_x.numpy()}")
+print(f"Batch-y:{batch_y.numpy()}")
