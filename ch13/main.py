@@ -111,3 +111,8 @@ ds = ds_joint.batch(batch_size=3, drop_remainder=False)
 batch_x, batch_y = next(iter(ds))
 print(f"Batch-x:\n{batch_x.numpy()}")
 print(f"Batch-y:{batch_y.numpy()}")
+
+#
+ds = ds_joint.repeat(count=2).batch(3)
+for i, (batch_x, batch_y) in enumerate(ds):
+    print(i, batch_x.shape, batch_y.numpy())
