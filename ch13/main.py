@@ -116,3 +116,14 @@ print(f"Batch-y:{batch_y.numpy()}")
 ds = ds_joint.repeat(count=2).batch(3)
 for i, (batch_x, batch_y) in enumerate(ds):
     print(i, batch_x.shape, batch_y.numpy())
+
+# shuffle->batch->repeat
+tf.random.set_seed(1)
+ds = ds_joint.shuffle(4).batch(2).repeat(3)
+for i, (batch_x, batch_y) in enumerate(ds):
+    print(i, batch_x.shape, batch_y.numpy())
+
+tf.random.set_seed(1)
+ds = ds_joint.batch(2).shuffle(20).repeat(3)
+for i, (batch_x, batch_y) in enumerate(ds):
+    print(i, batch_x.shape, batch_y.numpy())
