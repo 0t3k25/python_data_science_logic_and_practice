@@ -180,3 +180,16 @@ for i, example in enumerate(ds_images_labels):
     ax.set_title(f"{example[1].numpy()}", size=15)
 plt.tight_layout()
 plt.show()
+
+# celeb_aデータ読み込み
+import tensorflow_datasets as tfds
+
+print(len(tfds.list_builders()))
+
+print(tfds.list_builders()[:5])
+
+celeba_bldr = tfds.builder("celeb_a")
+print(celeba_bldr.info.features)
+print(celeba_bldr.info.features["image"])
+print(celeba_bldr.info.features["attributes"].keys())
+print(celeba_bldr.info.citation)
