@@ -193,3 +193,21 @@ print(celeba_bldr.info.features)
 print(celeba_bldr.info.features["image"])
 print(celeba_bldr.info.features["attributes"].keys())
 print(celeba_bldr.info.citation)
+
+# mnistデータ
+mnist, mnist_info = tfds.load("mnist", with_info=True, shuffle_files=False)
+print(mnist_info)
+
+ds_train = mnist["train"]
+ds_train = ds_train.map(lambda item: (item["image"], item["label"]))
+ds_train = ds_train.batch(10)
+batch = next(iter(ds_train))
+print(batch[0].shape, batch[1])
+
+fig = plt.figure(figsize=(15, 6))
+for i, (image, label) in enumerate(zip(batch[0], batch[1])):
+    ax = fig.add_subplot(2, 5, i + 1)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.imshow(image[:, :, 0], cmap="gray_r")
+    ax.set_title(f"{label}", size=15)
