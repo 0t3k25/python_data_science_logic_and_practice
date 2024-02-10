@@ -241,3 +241,20 @@ class MyModel(tf.keras.Model):
 
     def call(self, X):
         return self.w * X + self.b
+
+
+model = MyModel()
+model.build(input_shape=(None, 1))
+model.summary()
+
+
+def loss_fn(y_true, y_pred):
+    return tf.reduce_mean(tf.square(y_true - y_pred))
+
+
+def train(model, inputs, outputs, learning_rate):
+    with tf.GradientTape() as tape:
+        current_loss = loss_fn(model(inputs), outputs)
+        dW, db = tape.grandient(current_loss, [model.w, model.b])
+        model.w.assign_sub(learning_rate * dW)
+        model.b.assign_sub(learning_rate * db)
