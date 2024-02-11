@@ -258,3 +258,58 @@ def train(model, inputs, outputs, learning_rate):
         dW, db = tape.grandient(current_loss, [model.w, model.b])
         model.w.assign_sub(learning_rate * dW)
         model.b.assign_sub(learning_rate * db)
+
+
+tf.random.set_seed(1)
+num_epochs = 200
+log_steps = 100
+learning_rate = 0.001
+batch_size = 1
+steps_per_epochs = int(np.ceil(len(y_train) / batch_size))
+
+ds_train = ds_train_orig.shuffle(buffer_size=len(y_train))
+ds_train = ds_train.repeat(count=None)
+ds_train = ds_train.batch(1)
+Ws, bs = [], []
+
+for i, batch in enumerate(ds_train):
+    if i >= steps_per_epochs * num_epochs:
+        break  # 無限ループを抜ける
+    Ws.append(model.w.numpy())
+    bs.append(model.b.numpy())
+
+    bx, by = batch
+    loss_val = loss_fn(model(bx), by)
+
+    train(model, bx, by, learning_rate=learning_rate)
+    if i % log_steps == 0:
+        print(
+            "Epoch {:4d} Step {:2d} Loss {:6.4f}".format(
+                int(i / steps_per_epochs), i, loss_val
+            )
+        )
+
+print("Final Paraneters: ", model.w.numpy(), model.b.numpy())
+
+import numpy as np
+
+X_test = np.linspace(0, 9, num=100).reshape(-1, 1)
+X_test_norm = (X_test - np.mean(X_train)) / np.std(X_train)
+y_pred = model(tf.cast(X_test_norm, dtype=tf.float32))
+
+fig = plt.figure(figsize=(13, 5))
+ax = fig.add_subplot(1, 2, 1)
+plt.plot(X_train_norm, y_train, "o", markersize=10)
+plt.plot(X_test_norm, y_pred, "--", lw=3)
+plt.legend(["Training examples", "Linear Reg."], fontsize=15)
+ax.set_xlabel("x", size=15)
+ax.set_ylabel("y", size=15)
+ax.tick_params(axis="both", which="major", labelsize=15)
+ax = fig.add_subplot(1, 2, 2)
+plt.plot(Ws, lw=3)
+plt.plot(bs, lw=3)
+plt.legend(["Weight w", "Bias unit b"], fontsize=15)
+ax.set_xlabel("Iteration", size=15)
+ax.set_ylabel("Value", size=15)
+ax.tick_params(axis="both", which="major", labelsize=15)
+plt.show()
