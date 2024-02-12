@@ -226,7 +226,8 @@ plt.show()
 # 標準化
 import tensorflow as tf
 
-X_train_norm = X_train - np.mean(X_train) / np.std(X_train)
+X_train_norm = (X_train - np.mean(X_train)) / np.std(X_train)
+
 ds_train_orig = tf.data.Dataset.from_tensor_slices(
     (tf.cast(X_train_norm, tf.float32), tf.cast(y_train, tf.float32))
 )
@@ -313,3 +314,9 @@ ax.set_xlabel("Iteration", size=15)
 ax.set_ylabel("Value", size=15)
 ax.tick_params(axis="both", which="major", labelsize=15)
 plt.show()
+
+# compile methodの利用
+tf.random.set_seed(1)
+model = MyModel()
+model.compile(optimizer="sgd", loss=loss_fn, metrics=["mae", "mse"])
+model.fit(X_train_norm, y_train, epochs=num_epochs, batch_size=batch_size, verbose=1)
