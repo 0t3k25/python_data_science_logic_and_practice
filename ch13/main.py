@@ -382,3 +382,41 @@ plt.show()
 
 results = iris_model.evaluate(ds_test.batch(50), verbose=0)
 print("Test loss: {:.4f} Test Acc. {:.4f}".format(*results))
+
+import numpy as np
+
+X = np.array([1, 1.4, 2.5])  # 1つ目の値は1でなければならない
+w = np.array([0.4, 0.3, 0.5])
+
+
+def net_input(X, w):
+    return np.dot(X, w)
+
+
+def logistic(z):
+    return 1.0 / (1.0 + np.exp(-z))
+
+
+def logistic_activation(X, w):
+    z = net_input(X, w)
+    return logistic(z)
+
+
+print(f"P(y=1|x) = {logistic_activation(X,w) :.3f}")
+
+# W : array , shape =[n_output_units, n_hidden_units + 1]
+#  この配列の最初の列(W[:][0])はバイアスユニット
+W = np.array([[1.1, 1.2, 0.8, 0.4], [0.2, 0.4, 1.0, 0.2], [0.6, 1.5, 1.2, 0.7]])
+# A : array, shape = (n_hidden_units+1,n_samples)
+#  この配列の最初の列(A[0][0])は1でなければならない
+
+A = np.array([[1, 0.1, 0.4, 0.6]])
+# Z : array,shape = [n_output_units, n_samples]
+# 出力層の総入力
+Z = np.dot(W, A[0])
+y_probas = logistic(Z)
+print(f"Net Input: \n", Z)
+print(f"Output Units:\n", y_probas)
+
+y_class = np.argmax(Z, axis=0)
+print(f"Predicted class label: {y_class}")
