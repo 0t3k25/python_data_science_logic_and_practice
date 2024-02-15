@@ -420,3 +420,58 @@ print(f"Output Units:\n", y_probas)
 
 y_class = np.argmax(Z, axis=0)
 print(f"Predicted class label: {y_class}")
+
+
+def softmax(z):
+    return np.exp(z) / np.sum(np.exp(z))
+
+
+y_probas = softmax(Z)
+print(f"Probabilities:\n", y_probas)
+
+np.sum(y_probas)
+
+import tensorflow as tf
+
+Z_tensor = tf.expand_dims(Z, axis=0)
+tf.keras.activations.softmax(Z_tensor)
+
+# compare logistc vs hyperbolic tangent
+import matplotlib.pyplot as plt
+
+
+def tanh(z):
+    e_p = np.exp(z)
+    e_m = np.exp(-z)
+    return (e_p - e_m) / (e_p + e_m)
+
+
+z = np.arange(-5, 5, 0.005)
+log_act = logistic(z)
+tanh_act = tanh(z)
+plt.ylim([-1.5, 1.5])
+plt.xlabel("net input $z$")
+plt.ylabel("activation $\phi(z)$")
+plt.axhline(1, color="black", linestyle=":")
+plt.axhline(0.5, color="black", linestyle=":")
+plt.axhline(0, color="black", linestyle=":")
+plt.axhline(-0.5, color="black", linestyle=":")
+plt.axhline(-1, color="black", linestyle=":")
+plt.plot(z, tanh_act, linewidth=3, linestyle="--", label="tanh")
+plt.plot(z, log_act, linewidth=3, label="logistic")
+plt.legend(loc="lower right")
+plt.tight_layout()
+plt.show()
+
+print(np.tanh(z))
+
+tf.keras.activations.tanh(z)
+
+from scipy.special import expit
+
+expit(z)
+
+tf.keras.activations.sigmoid(z)
+
+# ReLUの適用法
+tf.keras.activations.relu(z)
