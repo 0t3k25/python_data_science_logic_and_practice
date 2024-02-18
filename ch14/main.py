@@ -42,3 +42,45 @@ def compute_z(a, b, c):
 
 tf.print("Rank 1 Inputs:", compute_z([1], [2], [3]))
 tf.print("Rank 1 Inputs:", compute_z([1, 2], [2, 4], [3, 6]))
+
+import tensorflow as tf
+
+a = tf.Variable(initial_value=3.14, name="var_a")
+print(a)
+
+b = tf.Variable(initial_value=[1, 2, 3], name="var_b")
+print(b)
+
+c = tf.Variable(initial_value=[True, False], dtype=tf.bool)
+print(c)
+
+d = tf.Variable(initial_value=["abc"], dtype=tf.string)
+print(d)
+
+# 訓練不可変数
+w = tf.Variable([1, 2, 3], trainable=False)
+print(w.trainable)
+
+print(w.assign([3, 1, 4], read_value=True))
+w.assign_add([2, -1, 2], read_value=False)
+print(w.value())
+
+# 乱数生成
+tf.random.set_seed(1)
+init = tf.keras.initializers.GlorotNormal()
+tf.print(init(shape=(3,)))
+v = tf.Variable(init(shape=(2, 3)))
+tf.print(v)
+
+
+class MyModule(tf.Module):
+    def __init__(self):
+        init = tf.keras.initializers.GlorotNormal()
+        self.w1 = tf.Variable(init(shape=(2, 3)), trainable=True)
+        self.w2 = tf.Variable(init(shape=(1, 2)), trainable=False)
+
+
+m = MyModule()
+print("All module variabels:", [v.shape for v in m.variables])
+
+print("Trainable variable:", [v.shape for v in m.trainable_variables])
