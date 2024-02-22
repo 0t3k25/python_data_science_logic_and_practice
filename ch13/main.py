@@ -560,3 +560,33 @@ hist = model.fit(
     batch_size=2,
     verbose=0,
 )
+
+# kerasを使ったモデルの構築
+tf.random.set_seed(1)
+# 入力値
+inputs = tf.keras.Input(shape=(2,))
+# 隠れ層
+h1 = tf.keras.layers.Dense(units=4, activation="relu")(inputs)
+h2 = tf.keras.layers.Dense(units=4, activation="relu")(h1)
+h3 = tf.keras.layers.Dense(units=4, activation="relu")(h2)
+# 出力層
+outputs = tf.keras.layers.Dense(units=1, activation="sigmoid")(h3)
+# モデルを構築
+model = tf.keras.Model(inputs=inputs, outputs=outputs)
+model.summary()
+
+# コンパイル
+model.compile(
+    optimizer=tf.keras.optimizers.SGD(),
+    loss=tf.keras.losses.BinaryCrossentropy(),
+    metrics=[tf.keras.metrics.BinaryAccuracy()],
+)
+# 訓練
+hist = model.fit(
+    x_train,
+    y_train,
+    validation_data=(x_valid, y_valid),
+    epochs=200,
+    batch_size=2,
+    verbose=0,
+)
