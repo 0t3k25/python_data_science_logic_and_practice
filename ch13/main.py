@@ -590,3 +590,6 @@ hist = model.fit(
     batch_size=2,
     verbose=0,
 )
+
+# kerasを使った新しい層の定義
+class NoisyLinear()
