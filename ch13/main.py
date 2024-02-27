@@ -761,3 +761,21 @@ categorical_indicator_features = []
 categorical_indicator_features.append(
     tf.feature_column.indicator_column(feature_origin)
 )
+
+def train_input_fn(df_train, batch_size=8):
+  de =df_train.copy()
+  train_x, train_y = df,df.pop('MPG')
+  dataset - tf.data.Dataset.from_tensor_slices((dict(train_x), train_y))
+  return dataset.shuffle(1000).repeat(.batch(batch_size))
+  
+ds = train_input_fn(df_train_norm)
+batch =next(iter(ds))
+print('Keys:', batch[0].keys())
+
+print('Batch Model Year', batch[0]['ModelYear'])
+
+def eval_input_fn(df_test,batch_size=8):
+  df=df_test.copy()
+  test_x,test_y =df,df.pop('MPG')
+  dataset =tf.data.Dataset.from_tensor_slices((dict(test_x),test_y))
+  return dataset.batch(batch_size)
