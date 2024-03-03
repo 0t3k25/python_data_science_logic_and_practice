@@ -391,8 +391,16 @@ my_estimator = tf.keras.estimator.model_to_estimator(
     keras_model=model,model_dir='models/estimator-for-XOR/')
 
 # 手順4 Estimatorを使う
-num_epochs=200
-batch_size=2
-steps_per_epoch = np.ceil(len(x_train)/ batch_size)
-my_estimator.train(input_fn=lambda:train_input_fn(x_train,y_train,batch_size),steps=num_epochs*steps_per_epoch)
-my_estimator.evaluate(input_fn=lambda:eval_input_fn(x_valid,y_valid,batch_size))
+num_epochs = 200
+batch_size = 2
+steps_per_epoch = np.ceil(len(x_train) / batch_size)
+
+my_estimator.train(
+    input_fn=lambda: train_input_fn(x_train, y_train, batch_size),
+    steps=num_epochs * steps_per_epoch)
+
+
+
+
+my_estimator.evaluate(
+    input_fn=lambda: eval_input_fn(x_valid, y_valid, batch_size))
