@@ -242,105 +242,125 @@ categorical_indicator_features.append(
     tf.feature_column.indicator_column(feature_origin)
 )
 
+
 def train_input_fn(df_train, batch_size=8):
-  de =df_train.copy()
-  train_x, train_y = df,df.pop('MPG')
-  dataset - tf.data.Dataset.from_tensor_slices((dict(train_x), train_y))
-  return dataset.shuffle(1000).repeat(.batch(batch_size))
-  
+    de = df_train.copy()
+    train_x, train_y = df, df.pop("MPG")
+    dataset - tf.data.Dataset.from_tensor_slices((dict(train_x), train_y))
+    return dataset.shuffle(1000).repeat(batch(batch_size))
+
+
 ds = train_input_fn(df_train_norm)
-batch =next(iter(ds))
-print('Keys:', batch[0].keys())
+batch = next(iter(ds))
+print("Keys:", batch[0].keys())
 
-print('Batch Model Year', batch[0]['ModelYear'])
+print("Batch Model Year", batch[0]["ModelYear"])
 
-def eval_input_fn(df_test,batch_size=8):
-  df=df_test.copy()
-  test_x,test_y =df,df.pop('MPG')
-  dataset =tf.data.Dataset.from_tensor_slices((dict(test_x),test_y))
-  return dataset.batch(batch_size)
+
+def eval_input_fn(df_test, batch_size=8):
+    df = df_test.copy()
+    test_x, test_y = df, df.pop("MPG")
+    dataset = tf.data.Dataset.from_tensor_slices((dict(test_x), test_y))
+    return dataset.batch(batch_size)
+
 
 # 特徴量連結
-all_feature_columns = (numeric_features + bucketized_features + categorical_indicator_features)
-regressor = tf.estimator.DNNRegressor(feature_columns=all_feature_columns,
-                                      hidden_units=[32,10],
-                                      model_dir='models/autompg-dnnregressor/')
+all_feature_columns = (
+    numeric_features + bucketized_features + categorical_indicator_features
+)
+regressor = tf.estimator.DNNRegressor(
+    feature_columns=all_feature_columns,
+    hidden_units=[32, 10],
+    model_dir="models/autompg-dnnregressor/",
+)
 
 # モデルの訓練
 import numpy as np
+
 EPOCHS = 1000
 BATCH_SIZE = 8
-total_steps = EPOCHS * int(np.ceil(len(df_train)/ BATCH_SIZE))
-print('Training Steps:', total_steps)
+total_steps = EPOCHS * int(np.ceil(len(df_train) / BATCH_SIZE))
+print("Training Steps:", total_steps)
 
-regressor.train(input_fn=lambda:train_input_fn(df_train_norm,batch_size=BATCH_SIZE),
-                steps=total_steps)reloaded_regressor =tf.estimator.DNNRegressor(feature_columns=all_feature_columns,hidden_units=[32,10],
-                                              warm_start_from='models/autompg=dnnregressor/',
-                                              model_dir = 'models/autompg-dnnregressor/')
+regressor.train(
+    input_fn=lambda: train_input_fn(df_train_norm, batch_size=BATCH_SIZE),
+    steps=total_steps,
+).reloaded_regressor = tf.estimator.DNNRegressor(
+    feature_columns=all_feature_columns,
+    hidden_units=[32, 10],
+    warm_start_from="models/autompg=dnnregressor/",
+    model_dir="models/autompg-dnnregressor/",
+)
 
 # モデルの性能評価
 eval_results = reloaded_regressor.evaluate(
-    input_fn=lambda:eval_input_fn(df_test_norm,batch_size=8)
+    input_fn=lambda: eval_input_fn(df_test_norm, batch_size=8)
 )
-print('Aberage-Loss {:.4f}'.format(eval_results['average_loss']))
+print("Aberage-Loss {:.4f}".format(eval_results["average_loss"]))
 
 # モデルを使った予測
-pred_res =regressor.predict(input_fn=lambda:eval_input_fn(df_test_norm,batch_size=8))
+pred_res = regressor.predict(input_fn=lambda: eval_input_fn(df_test_norm, batch_size=8))
 print(next(iter(pred_res)))
 boosted_tree = tf.estimator.BoostedTreesRegressor(
-    feature_columns=all_feature_columns,
-    n_batches_per_layer=20,
-    n_trees=200)
-boosted_tree.train(
-    input_fn=lambda:train_input_fn(df_train_norm,batch_size=8)
+    feature_columns=all_feature_columns, n_batches_per_layer=20, n_trees=200
 )
-eval_results= boosted_tree.evaluate(lambda:eval_input_fn(df_test_norm, batch_size=8))
-print('Avarage-Loss{:.4f}'.format(eval_results['average_loss']))
+boosted_tree.train(input_fn=lambda: train_input_fn(df_train_norm, batch_size=8))
+eval_results = boosted_tree.evaluate(lambda: eval_input_fn(df_test_norm, batch_size=8))
+print("Avarage-Loss{:.4f}".format(eval_results["average_loss"]))
 
 # 手書き数字を分類する
 import tensorflow_datasets as tfds
 import tensorflow as tf
 import numpy as np
+
 BUFFER_SIZE = 10000
 BATCH_SIZE = 64
 NUM_EPOCHS = 20
-steps_per_epoch = np.ceil(60000/BATCH_SIZE)
+steps_per_epoch = np.ceil(60000 / BATCH_SIZE)
+
 
 # float型に変換
 def preprocess(item):
-  image = item['image']
-  label = item['label']
-  image = tf.image.convert_image_dtype(image, tf.float32)
-  image =tf.reshape(image,(-1,))
-  return {'image-pixels': image}, label[...,tf.newaxis]
+    image = item["image"]
+    label = item["label"]
+    image = tf.image.convert_image_dtype(image, tf.float32)
+    image = tf.reshape(image, (-1,))
+    return {"image-pixels": image}, label[..., tf.newaxis]
+
 
 # 訓練用と評価用の2つの入力関数を定義する
 # 手順1:入力関数を定義
 def train_input_fn():
-  datasets = tfds.load(name='mnist')
-  mnist_train = datasets['train']
-  dataset = dataset.shuffle(BUFFER_SIZE)
-  dataset = dataset.batch(BATCH_SIZE)
-  return dataset.repeat()
+    datasets = tfds.load(name="mnist")
+    mnist_train = datasets["train"]
+    dataset = dataset.shuffle(BUFFER_SIZE)
+    dataset = dataset.batch(BATCH_SIZE)
+    return dataset.repeat()
+
 
 def eval_input_fn():
-  datasets = tfds.load(name='mnist')
-  mnist_test = datasets['test']
-  dataset = mnist_test.map(preprocess).batch(BATCH_SIZE)
-  return dataset
+    datasets = tfds.load(name="mnist")
+    mnist_test = datasets["test"]
+    dataset = mnist_test.map(preprocess).batch(BATCH_SIZE)
+    return dataset
+
 
 # 特徴量列を定義
-image_feature_column = tf.feature_column.numeric_column(key='image-pixels', shape=(28*28))
+image_feature_column = tf.feature_column.numeric_column(
+    key="image-pixels", shape=(28 * 28)
+)
 # 画像のサイズを定義
 
 # 手順3:Estimatorをインスタンス化
-dnn_classifier = tf.estimator.DNNClassifier(feature_columns=[image_feature_column],
-                                            hidden_units=[32,16],
-                                            n_classes=10,
-                                            model_dir ='models/mnist-dnn/')
+dnn_classifier = tf.estimator.DNNClassifier(
+    feature_columns=[image_feature_column],
+    hidden_units=[32, 16],
+    n_classes=10,
+    model_dir="models/mnist-dnn/",
+)
 
 # 手順4:訓練と評価
-dnn_classifier.train(input_fn=train_input_fn, steps=NUM_EPOCHS* steps_per_epoch)
+dnn_classifier.train(input_fn=train_input_fn, steps=NUM_EPOCHS * steps_per_epoch)
 eval_result = dnn_classifier.evaluate(input_fn=eval_input_fn)
 print(eval_result)
 
@@ -350,45 +370,57 @@ print(eval_result)
 tf.random.set_seed(1)
 np.random.seed(1)
 # データを作成
-x = np.random.uniform(low=-1, high=1, size=(200,2))
-y =np.ones(len(x))
-y[x[:,0]*x[:,1]<0] = 0
-x_train=x[:100, :]
+x = np.random.uniform(low=-1, high=1, size=(200, 2))
+y = np.ones(len(x))
+y[x[:, 0] * x[:, 1] < 0] = 0
+x_train = x[:100, :]
 y_train = y[:100]
-x_valid = x[100:,:]
+x_valid = x[100:, :]
 y_valid = y[100:]
 
-model = tf.keras.Sequential([
-    tf.keras.layers.Input(shape=(2,), name='input-features'),
-    tf.keras.layers.Dense(units=4, activation='relu'),
-    tf.keras.layers.Dense(units=4, activation='relu'),
-    tf.keras.layers.Dense(units=4, activation='relu'),
-    tf.keras.layers.Dense(1,activation='sigmoid')
-])
+model = tf.keras.Sequential(
+    [
+        tf.keras.layers.Input(shape=(2,), name="input-features"),
+        tf.keras.layers.Dense(units=4, activation="relu"),
+        tf.keras.layers.Dense(units=4, activation="relu"),
+        tf.keras.layers.Dense(units=4, activation="relu"),
+        tf.keras.layers.Dense(1, activation="sigmoid"),
+    ]
+)
+
 
 # 手順1 入力関数を定義
-def train_input_fn(x_train,y_train,batch_size=8):
-  dataset = tf.data.Dataset.from_tensor_slices(({'input-features':x_train},y_train.reshape(-1,1)))
-  # データのシャッフル、リピート、バッチ
-  return dataset.shuffle(100).repeat().batch(batch_size)
+def train_input_fn(x_train, y_train, batch_size=8):
+    dataset = tf.data.Dataset.from_tensor_slices(
+        ({"input-features": x_train}, y_train.reshape(-1, 1))
+    )
+    # データのシャッフル、リピート、バッチ
+    return dataset.shuffle(100).repeat().batch(batch_size)
 
-def eval_input_fn(x_test,y_test=None,batch_size=8):
-  if y_test is None:
-    dataset = tf.data.Dataset.from_tensor_slices({'input-features':x_test})
-  else:
-    dataset = tf.data.Dataset.from_tensor_slices({'input-features':x_test},y_test.reshape(-1,1))
-  # データのバッチ
-  return dataset.batch(batch_size)
+
+def eval_input_fn(x_test, y_test=None, batch_size=8):
+    if y_test is None:
+        dataset = tf.data.Dataset.from_tensor_slices({"input-features": x_test})
+    else:
+        dataset = tf.data.Dataset.from_tensor_slices(
+            {"input-features": x_test}, y_test.reshape(-1, 1)
+        )
+    # データのバッチ
+    return dataset.batch(batch_size)
+
 
 # 手順2 特徴量列を定義
-features = [tf.feature_column.numeric_column(key='input-features:',shape=(2,))]
+features = [tf.feature_column.numeric_column(key="input-features:", shape=(2,))]
 
 # モデルをEstimatorに変更
-model.compile(optimizer=tf.keras.optimizers.SGD(),
-              loss=tf.keras.losses.BinaryCrossentropy(),
-              metrics=[tf.keras.metrics.BinaryAccuracy()])
+model.compile(
+    optimizer=tf.keras.optimizers.SGD(),
+    loss=tf.keras.losses.BinaryCrossentropy(),
+    metrics=[tf.keras.metrics.BinaryAccuracy()],
+)
 my_estimator = tf.keras.estimator.model_to_estimator(
-    keras_model=model,model_dir='models/estimator-for-XOR/')
+    keras_model=model, model_dir="models/estimator-for-XOR/"
+)
 
 # 手順4 Estimatorを使う
 num_epochs = 200
@@ -397,10 +429,8 @@ steps_per_epoch = np.ceil(len(x_train) / batch_size)
 
 my_estimator.train(
     input_fn=lambda: train_input_fn(x_train, y_train, batch_size),
-    steps=num_epochs * steps_per_epoch)
+    steps=num_epochs * steps_per_epoch,
+)
 
 
-
-
-my_estimator.evaluate(
-    input_fn=lambda: eval_input_fn(x_valid, y_valid, batch_size))
+my_estimator.evaluate(input_fn=lambda: eval_input_fn(x_valid, y_valid, batch_size))
