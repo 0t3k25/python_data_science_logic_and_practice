@@ -54,3 +54,34 @@ conv_layer = keras.layers.Conv2D(
     filters=16, kernel_size=(3, 3), kernel_regularizer=keras.regularizers.l2(0.001)
 )
 fc_layer = keras.layers.Dense(units=16, kernel_regularizer=keras.regularizers.l2(0.001))
+
+import tensorflow as tf
+
+# 分類の損失関数、logit logistic
+# binarycrossentropy
+bce_probas = tf.keras.losses.BinaryCrossentropy(from_logits=False)
+bce_logits = tf.keras.losses.BinaryCrossentropy(from_logits=True)
+logits = tf.constant([0.8])
+probas = tf.keras.activations.sigmoid(logits)
+tf.print(
+    "BCE(w Probas): {:.4f}".format(bce_probas(y_true=[1], y_pred=probas)),
+    "(w Logits): {:.4f}".format(bce_logits(y_true=[1], y_pred=logits)),
+)
+
+# categoricalcrossentropy
+cce_probas = tf.keras.losses.CategoricalCrossentropy(from_logits=False)
+cce_logits = tf.keras.losses.CategoricalCrossentropy(from_logits=True)
+logits = tf.constant([[1.5, 0.8, 2.1]])
+probas = tf.keras.activations.softmax(logits)
+tf.print(
+    "CCE(w probas): {:.4f}".format(cce_probas(y_true=[[0, 0, 1]], y_pred=probas)),
+    "(w logits): {:.4f}".format(cce_logits(y_true=[[0, 0, 1]], y_pred=logits)),
+)
+
+# sparseCategoricalCrossentropy
+sp_cce_probas = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False)
+sp_cce_logits = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+tf.print(
+    "Sparse CCE (w probas): {:.4f}".format(sp_cce_probas(y_true=[2], y_pred=probas)),
+    "(w logits): {:.4f}".format(sp_cce_logits(y_true=[2], y_pred=logits)),
+)
