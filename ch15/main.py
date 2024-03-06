@@ -47,3 +47,10 @@ W = [[1, 0, 3], [1, 2, 1], [0, 1, 1]]
 print("conv2d implementation:\n", conv2d(X, W, p=(1, 1), s=(1, 1)))
 
 print("scipy result:\n", scipy.signal.convolve2d(X, W, mode="same"))
+
+from tensorflow import keras
+
+conv_layer = keras.layers.Conv2D(
+    filters=16, kernel_size=(3, 3), kernel_regularizer=keras.regularizers.l2(0.001)
+)
+fc_layer = keras.layers.Dense(units=16, kernel_regularizer=keras.regularizers.l2(0.001))
