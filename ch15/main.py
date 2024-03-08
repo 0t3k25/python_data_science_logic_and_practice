@@ -123,3 +123,13 @@ mnist_train = mnist_train.shuffle(
 )
 mnist_valid = mnist_train.take(10000).batch(BATCH_SIZE)
 mnist_train = mnist_train.skip(10000).batch(BATCH_SIZE)
+
+# kerasでのCNNの構築
+model = tf.keras.Sequential()
+model.add(tf.keras.layers.Conv2D(filters=32,kernel_size=(5,5), strides=(1,1),
+                                 padding='same',data_format='channels_last',
+                                 name='conv_1', activation='relu'))
+model.add(tf.keras.layers.MaxPool2D(pool_size=(2,2),name='pool_1'))
+model.add(tf.keras.layers.Conv2D(filter=64,kernel_size=(5,5), strides=(1,1),
+                                 padding='same', name='conv_2d',activation='relu'))
+model.add(tf.keras.layers.MaxPool2D(pool_size=(2,2),,name='pool_2'))
