@@ -231,3 +231,21 @@ import tensorflow_datasets as tfds
 
 celeba_bldr = tfds.builder("celeb_a")
 celeba_bldr.download_and_prepare()
+celeba = celeba_bldr.as_dataset(shuffle_file=False)
+celeba_train = celeba["train"]
+celeba_valid = celeba("validation")
+celeba_test = celeba["test"]
+
+
+def count_items(ds):
+    n = 0
+    for _ in ds:
+        n += 1
+    return n
+
+
+print("Train set: {}".format(count_items(celeba_train)))
+
+print("Validation: {}".format(count_items(celeba_valid)))
+
+print("Test set: {}".format(count_items(celeba_test)))
