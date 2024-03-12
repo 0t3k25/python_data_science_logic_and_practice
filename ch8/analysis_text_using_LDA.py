@@ -25,3 +25,18 @@ horror = X_topics[:, 5].argsort()[::-1]
 for iter_idx, movie_idx in enumerate(horror[:3]):
     print("\n Horror movie #%d" % (iter_idx + 1))
     print(df["review"][movie_idx][:300], "...")
+
+# dataset読み込み
+import tensorflow_datasets as tfds
+import tensorflow as tf
+import numpy as np
+import pandas as pd
+
+df = pd.read_csv("movie_data.csv", encoding="utf-8")
+
+# 手順1:Datasetを作成
+target = df.pop("sentiment")
+ds_raw = tf.data.Dataset.from_tensor_slices((df.values, target.values))
+# 調査
+for ex in ds_raw.take(3):
+    tf.print(ex[0].numpy()[0][:50], ex[1])
