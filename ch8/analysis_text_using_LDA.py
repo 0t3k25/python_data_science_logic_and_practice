@@ -32,7 +32,7 @@ import tensorflow as tf
 import numpy as np
 import pandas as pd
 
-df = pd.read_csv("movie_data.csv", encoding="utf-8")
+df = pd.read_csv("movie_data.csv", encoding="utf-8", engine="python")
 
 # 手順1:Datasetを作成
 target = df.pop("sentiment")
@@ -40,3 +40,10 @@ ds_raw = tf.data.Dataset.from_tensor_slices((df.values, target.values))
 # 調査
 for ex in ds_raw.take(3):
     tf.print(ex[0].numpy()[0][:50], ex[1])
+
+tf.random.set_seed(1)
+ds_raw = ds_raw.shuffle(50000, reshuffle_each_iteration=False)
+ds_raw_test = ds_raw.take(25000)
+ds_raw_train_valid = ds_raw.skip(25000)
+ds_raw_train = ds_raw_train_valid(20000)
+ds_raw_valid = ds_raw_train_valid.skip(20000)
