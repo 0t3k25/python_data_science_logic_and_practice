@@ -47,3 +47,13 @@ ds_raw_test = ds_raw.take(25000)
 ds_raw_train_valid = ds_raw.skip(25000)
 ds_raw_train = ds_raw_train_valid(20000)
 ds_raw_valid = ds_raw_train_valid.skip(20000)
+
+# 手順2:一意なトークン(単語)を特定
+from collections import Counter
+
+tokenizer = tfds.features.text.Tokenizer()
+token_counts = Counter()
+for examples in ds_raw_train:
+    tokens = tokenizer.tokenize(example[0].numpy()[0])
+    token_counts.update(tokens)
+print("Vocab-size:", len(token_counts))
