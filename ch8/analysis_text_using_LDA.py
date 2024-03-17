@@ -57,3 +57,8 @@ for examples in ds_raw_train:
     tokens = tokenizer.tokenize(example[0].numpy()[0])
     token_counts.update(tokens)
 print("Vocab-size:", len(token_counts))
+
+# 手順3:一意なトークンを整数にエンコード
+encoder = tfds.features.text.TokenTextEncoder(token_counts)
+example_str = "This is an example!"
+print(encoder.encode(example_str))
