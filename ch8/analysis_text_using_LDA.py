@@ -62,3 +62,24 @@ print("Vocab-size:", len(token_counts))
 encoder = tfds.features.text.TokenTextEncoder(token_counts)
 example_str = "This is an example!"
 print(encoder.encode(example_str))
+
+
+# 手順3-A:変換用の関数を定義
+def encode(text_tensor, label):
+    text = text_tensor.numpy()[0]
+    encoded_text = encoder.encode(text)
+    return encoded_text, label
+
+
+# 3-B:encode関数をラッピングしてTensorFlow演算子に変換
+def encode_map_fn(text, label):
+    return tf.py_function(encode, inp=[text, label], Tout=(tf.int64, tf.int64))
+
+
+ds_train = ds_raw_train.map(encode_map_fn)
+ds_valid = ds_raw_valid.map(encode_map_fn)
+ds_test = ds_raw_test.map(encode_map_fn)
+# 訓練データの形状をチェック
+tf.random.set_seed(1)
+for example in ds_train.shuffle(1000).take(5):
+    print("Sequence length:", example[0].shape)
