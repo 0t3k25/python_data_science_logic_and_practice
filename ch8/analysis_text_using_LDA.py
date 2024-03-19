@@ -83,3 +83,11 @@ ds_test = ds_raw_test.map(encode_map_fn)
 tf.random.set_seed(1)
 for example in ds_train.shuffle(1000).take(5):
     print("Sequence length:", example[0].shape)
+
+# 小さなサブセットを取得
+ds_subset = ds_train.take(8)
+for example in ds_subset:
+    print("Individual size:", example[0].shape)
+ds_batched = ds_subset.padded_batch(4, padded_shapes=([-1], []))
+for batch in ds_batched:
+    print("Batch dimension:", batch[0].shape)
