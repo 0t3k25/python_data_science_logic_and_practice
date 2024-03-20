@@ -91,3 +91,10 @@ for example in ds_subset:
 ds_batched = ds_subset.padded_batch(4, padded_shapes=([-1], []))
 for batch in ds_batched:
     print("Batch dimension:", batch[0].shape)
+
+# add embedding layer
+from tensorflow.keras.layers import Embedding
+
+model = tf.keras.Sequential()
+model.add(Embedding(input_dim=100, output_dim=6, input_length=20, name="embed-layer"))
+model.summary()
