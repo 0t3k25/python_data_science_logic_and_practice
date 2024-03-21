@@ -98,3 +98,45 @@ from tensorflow.keras.layers import Embedding
 model = tf.keras.Sequential()
 model.add(Embedding(input_dim=100, output_dim=6, input_length=20, name="embed-layer"))
 model.summary()
+
+# RNNモデルの構築
+from tensorflow.keras import Sequential
+from tensorflow.keras.layers import Embedding
+from tensorflow.keras.layers import SimpleRNN
+from tensorflow.keras.layers import Dense
+
+model = Sequential()
+model.add(Embedding(input_dim=1000, output_dim=32))
+model.add(SimpleRNN(32, return_sequences=True))
+model.add(SimpleRNN(32))
+model.add(Dense(1))
+model.summary()
+
+# 感情分析のためのRNNの構築
+embedding_dim = 20
+vocab_size = len(token_counts) + 2
+tf.random.set_seed(1)
+# モデルを構築
+bi_lstm_model = tf.keras.Sequential(
+    [
+        tf.keras.layers.Embedding(
+            input_dim=vocab_size, output_dim=embegging_dim, name="embed-layer"
+        ),
+        tf.keras.layers.Bidirectional(
+            tf.keras.layers.LSTM(64, name="lstm-layer"), name="bidir-lstm"
+        ),
+        tf.keras.layers.Dense(64, activation="relu"),
+        tf.keras.layers.Dense(1, activation="sigmoid"),
+    ]
+)
+bi_lstm_model.summary()
+# コンパイルと訓練
+bi_lstm_model.compile(
+    optimizer=tf.keras.optimizers.Adam(le - 3),
+    loss=tf.keras.losses.BinaryCrossentropy(from_logits=False),
+    metrics=["accuracy"],
+)
+history = bi_lstm_model.fit(train_data, validation_data=valid_data, epochs=10)
+# テストデータでの評価
+test_results = bi_lstm_model.evaluate(test_data)
+print("Test Acc:{:.2f}%".format(test_results[1] * 100))
