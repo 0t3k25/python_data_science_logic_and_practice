@@ -49,14 +49,37 @@ ds_raw_train = ds_raw_train_valid(20000)
 ds_raw_valid = ds_raw_train_valid.skip(20000)
 
 # 手順2:一意なトークン(単語)を特定
+# 手順2:一意なトークン(単語)を特定
 from collections import Counter
 
-tokenizer = tfds.features.text.Tokenizer()
+# TextVectorization レイヤーを初期化
+text_vectorization = tf.keras.layers.TextVectorization(
+    output_mode="int",  # トークンを整数インデックスにマッピング
+    split="whitespace",  # ホワイトスペースでテキストを分割
+)
+
+# データセットのテキストデータに基づいてレイヤーを適応
+# ds_raw_train.map(lambda x: x[0]) のように、テキスト部分だけを抽出する必要がある場合があります。
+# 以下はテキストデータを想定していますが、実際のデータ構造に合わせて調整してください。
+# adapt メソッドを使うためには、まずテキストデータを集めたリストが必要です。
+all_texts = [example[0].numpy()[0] for example in ds_raw_train]
+text_vectorization.adapt(all_texts)
+
+# トークンのカウント
 token_counts = Counter()
-for examples in ds_raw_train:
-    tokens = tokenizer.tokenize(example[0].numpy()[0])
+
+# データセットをイテレートし、各テキストをトークン化してカウント
+for example in ds_raw_train:
+    text = example[0].numpy()[0]  # テキストデータの抽出
+    print(text)
+    tokenized_text = text_vectorization([text])  # テキストをトークン化
+    tokens = [
+        int(token) for token in tokenized_text[0].numpy() if token != 0
+    ]  # 0はパディング/未使用トークンを示す
     token_counts.update(tokens)
+
 print("Vocab-size:", len(token_counts))
+
 
 # 手順3:一意なトークンを整数にエンコード
 encoder = tfds.features.text.TokenTextEncoder(token_counts)
