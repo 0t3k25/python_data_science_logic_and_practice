@@ -49,7 +49,6 @@ ds_raw_train = ds_raw_train_valid(20000)
 ds_raw_valid = ds_raw_train_valid.skip(20000)
 
 # 手順2:一意なトークン(単語)を特定
-# 手順2:一意なトークン(単語)を特定
 from collections import Counter
 
 # TextVectorization レイヤーを初期化
@@ -82,15 +81,15 @@ print("Vocab-size:", len(token_counts))
 
 
 # 手順3:一意なトークンを整数にエンコード
-encoder = tfds.features.text.TokenTextEncoder(token_counts)
 example_str = "This is an example!"
-print(encoder.encode(example_str))
+str_encoded = text_vectorization([example_str])
+print("Encoded:", str_encoded.numpy())
 
 
 # 手順3-A:変換用の関数を定義
 def encode(text_tensor, label):
     text = text_tensor.numpy()[0]
-    encoded_text = encoder.encode(text)
+    encoded_text = text_vectorization([text])
     return encoded_text, label
 
 
@@ -163,3 +162,35 @@ history = bi_lstm_model.fit(train_data, validation_data=valid_data, epochs=10)
 # テストデータでの評価
 test_results = bi_lstm_model.evaluate(test_data)
 print("Test Acc:{:.2f}%".format(test_results[1] * 100))
+
+# 取得不可のため、ローカルのデータupload
+# ! curl -O http://www.gutenberg.org/files/1268/1268-0.txt
+
+import numpy as np
+
+# テキストを読み込んで処理
+with open("1268-0.txt", "r") as fp:
+    text = fp.read()
+
+start_indx = text.find("THE MYSTERIOUS ISLAND")
+end_indx = text.find("End of the Project Gutenberg")
+text = text[start_indx:end_indx]
+char_set = set(text)
+print("Total Length:", len(text))
+
+print("Unique Characters:", len(char_set))
+
+chars_sorted = sorted(char_set)
+char2int = {ch: i for i, ch in enumerate(chars_sorted)}
+char_array = np.array(chars_sorted)
+text_encoded = np.array([char2int[ch] for ch in text], dtype=np.int32)
+print("Text encoded shape:", text_encoded.shape)
+
+print(text[:15], "==Encoding ==>", text_encoded[:15])
+print(text_encoded[15:21], "== Reverse ==>", "".join(char_array[text_encoded[15:21]]))
+
+import tensorflow as tf
+
+ds_text_encoded = tf.data.Dataset.from_tensor_slices(text_encoded)
+for ex in ds_text_encoded.take(5):
+    print("{} -> {}".format(ex.numpy(), char_array[ex.numpy()]))
